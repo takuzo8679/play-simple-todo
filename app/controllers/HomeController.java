@@ -4,6 +4,7 @@ import form.PostForm;
 import model.Post;
 import play.data.Form;
 import play.data.FormFactory;
+import play.data.validation.ValidationError;
 import play.mvc.*;
 import service.PostService;
 
@@ -18,10 +19,12 @@ import java.util.List;
 public class HomeController extends Controller {
 
     private final Form<PostForm> postForm;
+    private final PostService postService;
 
     @Inject
-    public HomeController(FormFactory formFactory) {
+    public HomeController(FormFactory formFactory, PostService postService) {
         this.postForm = formFactory.form(PostForm.class);
+        this.postService = postService;
     }
 
     /**
@@ -35,7 +38,6 @@ public class HomeController extends Controller {
     }
 
     public Result getPosts(Integer postId, Http.Request request) {
-        PostService postService = new PostService();
         if(postId == null){
             return ok(views.html.posts.render(postService.getPosts(), postForm, request));
         }
@@ -47,6 +49,11 @@ public class HomeController extends Controller {
     }
 
     public Result createPost(Http.Request request) {
-        return badRequest();
+        Form<PostForm> boundForm = postForm.bindFromRequest(request);
+        if(boundForm.hasErrors()) {
+            return badRequest(views.html.posts.render(postService.getPosts(), boundForm, request));
+        }
+        postService.add(boundForm.get());
+        return redirect(routes.HomeController.getPosts(null));
     }
 }

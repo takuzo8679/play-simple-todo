@@ -43,6 +43,9 @@
                         </div>
                     </div>
                 }
+                @if(postForm.hasErrors) {
+                    <p style="color: red">Invalid Request!</p>
+                }
             </div>
     </div>
 </div>
