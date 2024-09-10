@@ -7,8 +7,9 @@ lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
 scalaVersion := "2.13.14"
 
-libraryDependencies += guice
 libraryDependencies ++=Seq(
   guice,
-  "org.apache.derby" % "derby" % "10.17.1.0"
+  jdbc,
+  evolutions,
+  "com.h2database" % "h2" % "2.2.224"
 )
