@@ -2,17 +2,20 @@ package service;
 
 import form.PostForm;
 import model.Post;
+import model.PostRepository;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class PostService {
+    private final PostRepository postRepository;
     private final List<Post> posts = new ArrayList<>();
 
-    public PostService() {
-        posts.add(new Post(1, "my-title", "my-content"));
-        posts.add(new Post(2, "study", "Play framework"));
+    @Inject
+    public PostService(PostRepository postRepository) {
+        this.postRepository = postRepository;
     }
 
     public Post getPost(int postId) {
@@ -24,7 +27,7 @@ public class PostService {
     }
 
     public List<Post> getPosts() {
-        return posts;
+        return postRepository.getAll();
     }
 
     public void add(PostForm postForm) {
