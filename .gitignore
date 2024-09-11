@@ -17,3 +17,8 @@ target
 **/.project/
 **/.settings/
 
+# database
+db-file.*
+
+# asdf
+.tool-versions
