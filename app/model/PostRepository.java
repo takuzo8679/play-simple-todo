@@ -8,4 +8,8 @@ import java.util.List;
 public interface PostRepository {
 
     List<Post> getAll();
+
+    Post getById(int postId);
+
+    void save(Post post);
 }

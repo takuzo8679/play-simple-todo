@@ -4,7 +4,7 @@
 
 @displayPost(post: model.Post) = {
     <div class="bg-info text-light" style="margin: 10px">
-        <h3>@post.getTitle()</h3>
+        <h3>(@post.getId())@post.getTitle()</h3>
         <span>@post.getContent()</span>
     </div>
 }
