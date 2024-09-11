@@ -5,12 +5,16 @@ import model.Post;
 import play.data.Form;
 import play.data.FormFactory;
 import play.data.validation.ValidationError;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.*;
 import service.PostService;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
+
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -20,11 +24,13 @@ public class HomeController extends Controller {
 
     private final Form<PostForm> postForm;
     private final PostService postService;
+    private final HttpExecutionContext ec;
 
     @Inject
-    public HomeController(FormFactory formFactory, PostService postService) {
+    public HomeController(FormFactory formFactory, PostService postService, HttpExecutionContext ec) {
         this.postForm = formFactory.form(PostForm.class);
         this.postService = postService;
+        this.ec = ec;
     }
 
     /**
@@ -37,23 +43,26 @@ public class HomeController extends Controller {
         return ok(views.html.index.render());
     }
 
-    public Result getPosts(Integer postId, Http.Request request) {
-        if(postId == null){
-            return ok(views.html.posts.render(postService.getPosts(), postForm, request));
+    public CompletionStage<Result> getPosts(Integer postId, Http.Request request) {
+        if(postId == null) {
+            return postService.getPosts()
+                    .thenApplyAsync(posts -> ok(views.html.posts.render(posts, postForm, request)), ec.current());
         }
         Post post = postService.getPost(postId);
         if (post == null){
-            return ok(views.html.posts.render(Collections.emptyList(), postForm, request));
+            return supplyAsync(() -> ok(views.html.posts.render(Collections.emptyList(), postForm, request)), ec.current());
         }
-        return ok(views.html.posts.render(List.of(post), postForm, request));
+        return supplyAsync(() -> ok(views.html.posts.render(List.of(post), postForm, request)), ec.current());
     }
 
-    public Result createPost(Http.Request request) {
+    public CompletionStage<Result> createPost(Http.Request request) {
         Form<PostForm> boundForm = postForm.bindFromRequest(request);
         if(boundForm.hasErrors()) {
-            return badRequest(views.html.posts.render(postService.getPosts(), boundForm, request));
+            return postService.getPosts()
+                    .thenApplyAsync(posts ->
+                            badRequest(views.html.posts.render(posts, boundForm, request)), ec.current());
         }
         postService.add(boundForm.get());
-        return redirect(routes.HomeController.getPosts(null));
+        return supplyAsync(() -> redirect(routes.HomeController.getPosts(null)), ec.current());
     }
 }

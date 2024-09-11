@@ -7,6 +7,7 @@ import model.PostRepository;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
 public class PostService {
     private final PostRepository postRepository;
@@ -21,7 +22,7 @@ public class PostService {
         return postRepository.getById(postId);
     }
 
-    public List<Post> getPosts() {
+    public CompletionStage<List<Post>> getPosts() {
         return postRepository.getAll();
     }
 

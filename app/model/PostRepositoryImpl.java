@@ -5,6 +5,9 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
+
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 public class PostRepositoryImpl implements PostRepository {
 
@@ -18,10 +21,10 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public List<Post> getAll() {
-        return jpaApi.withTransaction(entityManager -> {
+    public CompletionStage<List<Post>> getAll() {
+        return supplyAsync(() -> jpaApi.withTransaction(entityManager -> {
             return entityManager.createQuery("select p from Post p", Post.class).getResultList();
-        });
+        }));
     }
 
     @Override
