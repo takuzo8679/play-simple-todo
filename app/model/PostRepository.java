@@ -10,7 +10,7 @@ public interface PostRepository {
 
     CompletionStage<List<Post>> getAll();
 
-    Post getById(int postId);
+    CompletionStage<Post> getById(int postId);
 
     void save(Post post);
 }

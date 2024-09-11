@@ -18,7 +18,7 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public Post getPost(int postId) {
+    public CompletionStage<Post> getPost(int postId) {
         return postRepository.getById(postId);
     }
 

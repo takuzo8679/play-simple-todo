@@ -1,10 +1,8 @@
 package controllers;
 
 import form.PostForm;
-import model.Post;
 import play.data.Form;
 import play.data.FormFactory;
-import play.data.validation.ValidationError;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.*;
 import service.PostService;
@@ -48,11 +46,11 @@ public class HomeController extends Controller {
             return postService.getPosts()
                     .thenApplyAsync(posts -> ok(views.html.posts.render(posts, postForm, request)), ec.current());
         }
-        Post post = postService.getPost(postId);
-        if (post == null){
-            return supplyAsync(() -> ok(views.html.posts.render(Collections.emptyList(), postForm, request)), ec.current());
-        }
-        return supplyAsync(() -> ok(views.html.posts.render(List.of(post), postForm, request)), ec.current());
+
+        return postService.getPost(postId).thenApplyAsync(post ->
+                    ok(views.html.posts.render(List.of(post), postForm, request)),ec.current()
+        )
+                .exceptionally(error-> ok(views.html.posts.render(Collections.emptyList(), postForm, request)));
     }
 
     public CompletionStage<Result> createPost(Http.Request request) {
